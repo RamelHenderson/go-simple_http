@@ -7,14 +7,6 @@ import (
 	"net/http"
 )
 
-const (
-	POST   = "POST"
-	GET    = "GET"
-	PATCH  = "PATCH"
-	DELETE = "DELETE"
-	PUT    = "PUT"
-)
-
 // SendHttpRequest sends the specified request and returns the JSON response
 // Parameters:
 // - request: the request to send
@@ -32,16 +24,22 @@ func SendHttpRequest(request *http.Request) (map[string]interface{}, error) {
 	}
 	defer clientResponse.Body.Close()
 
-	// Read the jsonResponse data
+	// Read the mappedResponse data
 	data, err := io.ReadAll(clientResponse.Body)
 	if err != nil {
 		panic(err)
 	}
 
-	jsonResponse := make(map[string]interface{})
-	jsonResponse["status"] = clientResponse.StatusCode
-	jsonResponse["data"] = string(data)
-	return jsonResponse, err
+	// Create the JSON response
+	jsonData := make(map[string]interface{})
+	err = json.Unmarshal(data, &jsonData)
+	if err != nil {
+		panic(err)
+	}
+	mappedResponse := make(map[string]interface{})
+	mappedResponse["data"] = jsonData
+	mappedResponse["status"] = clientResponse.StatusCode
+	return mappedResponse, err
 }
 
 // PrettyPrintJSON pretty prints the specified JSON data
