@@ -21,7 +21,7 @@ func TestParameterRequest_Send(t *testing.T) {
 }
 
 func TestFormRequest_Send(t *testing.T) {
-	var TestFilePath = "image.png"
+	TestFilePath := "test_image.png"
 	request, err := NewFormRequest(POST, "https://postman-echo.com/post")
 	if err != nil {
 		panic(err)
@@ -38,7 +38,16 @@ func TestFormRequest_Send(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	request.AddFile("file", f)
+	defer func() {
+		err = f.Close()
+		if err != nil {
+			panic(err)
+		}
+	}()
+	_, err = request.AddFile("file", f)
+	if err != nil {
+		panic(err)
+	}
 
 	// Send the request
 	response, err := request.Send()
