@@ -6,7 +6,7 @@ import (
 )
 
 func TestParameterRequest_Send(t *testing.T) {
-	pr, err := NewParameterRequest(GET, "https://pokeapi.co/api/v2/pokemon")
+	pr, err := NewParameterRequest("GET", "https://pokeapi.co/api/v2/pokemon")
 	if err != nil {
 		panic(err)
 	}
@@ -17,17 +17,18 @@ func TestParameterRequest_Send(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	t.Log(response)
+	t.Log(PrettyPrintMap(response))
 }
 
 func TestFormRequest_Send(t *testing.T) {
-	TestFilePath := "test_image.png"
-	request, err := NewFormRequest(POST, "https://postman-echo.com/post")
+	request, err := NewFormRequest("POST", "https://postman-echo.com/post")
 	if err != nil {
 		panic(err)
 	}
 
-	// Add a file as a byte array
+	TestFilePath := "test_image.png"
+
+	//Add a file as a byte array
 	err = request.AddFileData("bytes", "fake.txt", []byte("SET BY BYTE ARRAY"))
 	if err != nil {
 		panic(err)
@@ -54,5 +55,5 @@ func TestFormRequest_Send(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	t.Log(response)
+	t.Log(PrettyPrintMap(response))
 }

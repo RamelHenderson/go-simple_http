@@ -24,7 +24,12 @@ func SendHttpRequest(request *http.Request) (map[string]interface{}, error) {
 	if err != nil {
 		panic(err)
 	}
-	defer clientResponse.Body.Close()
+	defer func() {
+		err := clientResponse.Body.Close()
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	// Read the mappedResponse data
 	data, err := io.ReadAll(clientResponse.Body)
@@ -36,16 +41,20 @@ func SendHttpRequest(request *http.Request) (map[string]interface{}, error) {
 	jsonData := make(map[string]interface{})
 	err = json.Unmarshal(data, &jsonData)
 	if err != nil {
-		panic(err)
+		if strings.Contains(err.Error(), "unexpected end of JSON input") {
+			jsonData["message"] = string(data)
+		} else {
+			panic(err)
+		}
 	}
 	mappedResponse := make(map[string]interface{})
 	mappedResponse["data"] = jsonData
 	mappedResponse["status"] = clientResponse.StatusCode
-	return mappedResponse, err
+	return mappedResponse, nil
 }
 
-// PrettyPrintJSON pretty prints the specified JSON data
-func PrettyPrintJSON(data map[string]interface{}) string {
+// PrettyPrintMap pretty prints the specified JSON data
+func PrettyPrintMap(data map[string]interface{}) string {
 	prettyJSON, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		panic(err)
@@ -59,9 +68,10 @@ func PrettyPrintJSON(data map[string]interface{}) string {
 // Returns:
 // - and error if the method is invalid
 func ValidateRequestMethod(method string) error {
-	switch strings.ToLower(method) {
+	switch method {
 	case "GET", "POST", "PUT", "PATCH", "DELETE":
 		return nil
+
 	default:
 		return errors.New("Invalid method: \"" + method + "\"")
 	}

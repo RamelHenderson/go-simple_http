@@ -27,24 +27,26 @@ type FormRequest struct {
 // - a new form request
 // - an error if there was an issue creating the form request
 func NewFormRequest(method, url string) (*FormRequest, error) {
-	sr := &FormRequest{}
-
-	// Validate the URL and assign it to the struct
-	if !strings.Contains(url, "http") {
-		return nil, errors.New("Invalid URL: " + url)
+	sr := &FormRequest{
+		Headers: make(map[string]string),
+		Body:    bytes.Buffer{},
 	}
-	sr.Url = url
-
-	// Validate the method and assign it to the struct
-	if ValidateRequestMethod(method) != nil {
-		return nil, errors.New("Invalid method: " + method)
-	}
-
-	// Initialize body
-	sr.Body = bytes.Buffer{}
 
 	// Initialize the Writer
 	sr.MultipartWriter = multipart.NewWriter(&sr.Body)
+
+	// Validate the URL and assign it to the struct
+	sr.Url = url
+	if !strings.Contains(sr.Url, "http") {
+		return nil, errors.New("Invalid URL: " + sr.Url)
+	}
+
+	// Validate the method and assign it to the struct
+	// Upper case the method
+	sr.Method = strings.ToUpper(method)
+	if ValidateRequestMethod(method) != nil {
+		return nil, errors.New("Invalid method: " + method)
+	}
 
 	return sr, nil
 }
