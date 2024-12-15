@@ -36,11 +36,7 @@ func NewFormRequest(method, url string) (*FormRequest, error) {
 	sr.Url = url
 
 	// Validate the method and assign it to the struct
-	switch strings.ToLower(method) {
-	case "post", "get", "patch", "delete", "put":
-		sr.Method = method
-		break
-	default:
+	if ValidateRequestMethod(method) != nil {
 		return nil, errors.New("Invalid method: " + method)
 	}
 

@@ -3,8 +3,10 @@ package main
 import (
 	_ "embed"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
+	"strings"
 )
 
 // SendHttpRequest sends the specified request and returns the JSON response
@@ -49,4 +51,18 @@ func PrettyPrintJSON(data map[string]interface{}) string {
 		panic(err)
 	}
 	return string(prettyJSON)
+}
+
+// ValidateRequestMethod validates the specified method
+// Parameters:
+// - method: the method to validate
+// Returns:
+// - and error if the method is invalid
+func ValidateRequestMethod(method string) error {
+	switch strings.ToLower(method) {
+	case "GET", "POST", "PUT", "PATCH", "DELETE":
+		return nil
+	default:
+		return errors.New("Invalid method: \"" + method + "\"")
+	}
 }

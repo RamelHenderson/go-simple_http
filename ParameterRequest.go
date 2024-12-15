@@ -28,11 +28,7 @@ func NewParameterRequest(method, url string) (*ParameterRequest, error) {
 	pr.Url = url
 
 	// Validate the method and assign it to the struct
-	switch strings.ToLower(method) {
-	case "post", "get", "patch", "delete", "put":
-		pr.Method = method
-		break
-	default:
+	if ValidateRequestMethod(method) != nil {
 		return nil, errors.New("Invalid method: " + method)
 	}
 
