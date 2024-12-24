@@ -6,7 +6,6 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"strings"
 )
 
 // SendHttpRequest sends the specified request and returns the JSON response
@@ -41,11 +40,8 @@ func SendHttpRequest(request *http.Request) (map[string]interface{}, error) {
 	jsonData := make(map[string]interface{})
 	err = json.Unmarshal(data, &jsonData)
 	if err != nil {
-		if strings.Contains(err.Error(), "unexpected end of JSON input") {
-			jsonData["message"] = string(data)
-		} else {
-			panic(err)
-		}
+		jsonData["message"] = string(data)
+		jsonData["error"] = err.Error()
 	}
 	mappedResponse := make(map[string]interface{})
 	mappedResponse["data"] = jsonData
